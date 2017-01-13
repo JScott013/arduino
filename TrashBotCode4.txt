@@ -67,7 +67,7 @@ if (Serial.available()) {               //if there is a serial connection
       digitalWrite(speedPin, LOW);
     }
     if (val == 'T') {
-      digitalWrite(speedPin, HIGH);
+      digitalWrite(speedPin, HIGH);     //these four offer keyboard stearing I had already used L for light
     }
     if (val == 'r') {
       digitalWrite(speedPin2, LOW);
