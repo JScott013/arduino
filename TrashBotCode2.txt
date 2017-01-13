@@ -1,0 +1,140 @@
+int IRPin2 = 1;          // select input pin for the second IR sensor
+int IRPin2Value = 0;    //store value from IR sensor 2
+int IRPin = 2;         //select the input pin for the IR sensor
+int IRPinValue = 0;   //store value from IR sensor
+int bumper1 = 2;   //first bumper switch, digital return
+int bumper2 = 5;   //second bumper switch, digital return
+int motorPin1 = 3;   //h-bridge L1
+int motorPin2 = 4;    //h-bridge L2
+int motorPin3 = 7;     //h-bridge L3
+int motorPin4 = 6;      //h-bridge L4
+int speedPin = 9;        //enable 1 (E on the L1/L2 side)
+int speedPin2 = 10;       //enable 1 (E on the L3/L4 side)
+long blinkTimer;
+int threshold = 200;
+
+
+enum State {Waiting,fwd,back,backL,backR};
+enum State state;
+
+void setup()
+{
+  pinMode(bumper1, INPUT);  //set the bumper switch  as an input
+  pinMode(bumper2, INPUT); //set the bumper switch 2 as an input
+  
+  //pinMode(IRPin, INPUT); // IRpin (right) as input
+  //pinMode(IRPin2, INPUT);// IRpin2 (left) as input
+  //apparently the analog in does not need to be called
+  
+  //set the following pins as outputs:
+  
+  pinMode(motorPin1 , OUTPUT);
+  pinMode(motorPin2 , OUTPUT);   //motorPin 1-4 == bridge pins
+  pinMode(motorPin3 , OUTPUT);
+  pinMode(motorPin4 , OUTPUT);
+  
+  
+  pinMode(speedPin , OUTPUT);  //this is setting one enable pin
+  pinMode(speedPin2 , OUTPUT); //this is setting the other
+  
+  
+  //set speedPin high so motors will run at start
+  
+  digitalWrite(speedPin, HIGH);
+  digitalWrite(speedPin2, HIGH);
+  
+  
+  state = Waiting;   //start enum states at 'waiting'
+}
+
+void loop()
+{
+
+  switch (state) {
+     case Waiting:
+	 if (digitalRead(bumper1) == HIGH || analogRead(IRPin2) > threshold) {
+	   state =  backL;
+	   digitalWrite(motorPin1, LOW);     //set L1 low
+           digitalWrite(motorPin2, HIGH);    //set L2 high
+           digitalWrite(motorPin3, LOW);     //set L3 low
+           digitalWrite(motorPin4, HIGH);    //set L4 high
+	   blinkTimer = millis() + 2000;
+          }
+          
+   else if (digitalRead(bumper2) == HIGH || analogRead(IRPin) > threshold){
+           state = backR;
+           digitalWrite(motorPin1, LOW);     //set L1 low
+           digitalWrite(motorPin2, HIGH);    //set L2 high
+           digitalWrite(motorPin3, LOW);     //set L3 low
+           digitalWrite(motorPin4, HIGH);    //set L4 high   	
+	   blinkTimer = millis() + 1500;
+           
+     }
+            
+      break;
+      
+        case backL:
+	 if (millis() > blinkTimer) {
+	   digitalWrite(motorPin1, LOW);   //set L1 low
+           digitalWrite(motorPin2, HIGH);    //set L2 high
+           digitalWrite(motorPin3, HIGH);    //set L3 low
+           digitalWrite(motorPin4, LOW);   //set L4 high	
+	   blinkTimer = millis() + 1500;
+           state = fwd;
+         } 
+
+     break;
+     
+      case backR:
+	 if (millis() > blinkTimer) {
+	   digitalWrite(motorPin1, HIGH);   
+           digitalWrite(motorPin2, LOW);    
+           digitalWrite(motorPin3, LOW);    
+           digitalWrite(motorPin4, HIGH);   	
+	   blinkTimer = millis() + 1500;
+           state = fwd;
+         } 
+
+     break;
+
+     case fwd:
+	 if (millis() > blinkTimer) {
+	   digitalWrite(motorPin1, HIGH); //set L1 high
+           digitalWrite(motorPin2, LOW);  //set L2 low
+           digitalWrite(motorPin3, HIGH); //set L3 high
+           digitalWrite(motorPin4, LOW);  //set L4 low
+	   state = Waiting;
+	 }
+     
+      break;
+  }
+}
+ 
+
+/*what follows bellow worked as well
+  saved for future consideration used instead
+  of || in the first if statement
+
+else if
+(digitalRead(switchPin2) == HIGH) {
+  state = WaitLight;
+  digitalWrite(greenLED, LOW);
+  digitalWrite(redLED, HIGH);
+  blinkTimer = millis() + 5000;
+}*/
+
+/*This little didy was tried as a means 
+to add a second light state. I stuck it
+right after the first if statement. It 
+did not work.
+
+case TwoLight:
+	 if (millis() > blinkTimer) {
+	   
+	   digitalWrite(greenLED, LOW);     
+	   digitalWrite(redLED, LOW);	
+	   blinkTimer = millis() + 1000;
+           state = WaitLight;
+          }  */  
+          
+

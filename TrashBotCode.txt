@@ -1,0 +1,119 @@
+
+
+int IRPin2 = 1;          // select input pin for the second IR sensor
+int IRPin2Value = 0;    //store value from IR sensor 2
+int IRPin = 2;         //select the input pin for the IR sensor
+int IRPinValue = 0;   //store value from IR sensor
+int switchPin = 2;   //first bumper switch, digital return
+int switchPin2 = 5; //second bumper switch, digital return
+int motorPin1 = 3;   //h-bridge L1
+int motorPin2 = 4;    //h-bridge L2
+int motorPin3 = 7;     //h-bridge L3
+int motorPin4 = 6;      //h-bridge L4
+int speedPin = 9;        //enable 1 (E on the L1/L2 side)
+int speedPin2 = 10;       //enable 1 (E on the L3/L4 side)
+
+
+void setup() 
+
+{
+  pinMode(switchPin, INPUT);  //set the bumper switch  as an input
+  pinMode(switchPin2, INPUT); //set the bumper switch 2 as an input
+  
+  //pinMode(IRPin, INPUT); // IRpin as input
+  //pinMode(IRPin2, INPUT);// IRpin2 as input
+  //apparently the analog in does not need to be called
+  
+  //set the following pins as outputs:
+  
+  pinMode(motorPin1 , OUTPUT);
+  pinMode(motorPin2 , OUTPUT);
+  pinMode(motorPin3 , OUTPUT);
+  pinMode(motorPin4 , OUTPUT);
+  
+  
+  pinMode(speedPin , OUTPUT);  //this is setting one enable pin
+  pinMode(speedPin2 , OUTPUT); //this is setting the other
+  
+  
+  //set speedPin high so motors will run at start
+  
+  digitalWrite(speedPin, HIGH);
+  digitalWrite(speedPin2, HIGH);
+  
+                             
+}
+
+void loop()
+
+{
+  //Threshold info and instructions for both IR sensors
+  int threshold = 225;
+  if(analogRead(IRPin) > threshold) 
+  
+  {
+    digitalWrite(speedPin2, LOW);
+    digitalWrite(speedPin, LOW); 
+  }
+    
+  else if(analogRead(IRPin2) > threshold)   //instructions given
+  {
+    digitalWrite(speedPin2, LOW);            //for either IR sensor 
+    digitalWrite(speedPin, LOW); 
+  }           //condition (currently 
+                                             //stop and go)
+  else
+  {
+    digitalWrite(speedPin2, HIGH);
+    digitalWrite(speedPin, HIGH);
+  }
+
+    
+  //first bumper switch
+  
+  if (digitalRead(switchPin) == HIGH) 
+  
+  {
+    digitalWrite(motorPin1, LOW);     //set L1 low
+    digitalWrite(motorPin2, HIGH);    //set L2 high
+    digitalWrite(motorPin3, LOW);     //set L3 low
+    digitalWrite(motorPin4, HIGH);    //set L4 high
+    delay(10000);
+    digitalWrite(motorPin1, HIGH);   //set L1 low
+    digitalWrite(motorPin2, LOW);    //set L2 high
+    digitalWrite(motorPin3, LOW);    //set L3 low
+    digitalWrite(motorPin4, HIGH);   //set L4 high
+    delay(5000);
+   }
+  
+  //second bumper switch
+    
+ else if (digitalRead(switchPin2) == HIGH) 
+ {
+    digitalWrite(motorPin1, LOW);  //set L1 low
+    digitalWrite(motorPin2, HIGH); //set L2 high
+    digitalWrite(motorPin3, LOW);  //set L3 low
+    digitalWrite(motorPin4, HIGH); //set L4 high
+    delay(10000);
+    digitalWrite(motorPin1, HIGH); //set L1 low
+    digitalWrite(motorPin2, LOW);  //set L2 high
+    digitalWrite(motorPin3, LOW);  //set L3 low
+    digitalWrite(motorPin4, HIGH); //set L4 high
+    delay(5000);
+  }
+  
+  //instructions given these conditions at either bumper
+  
+  else 
+  {
+    digitalWrite(motorPin1, HIGH); //set L1 high
+    digitalWrite(motorPin2, LOW);  //set L2 low
+    digitalWrite(motorPin3, HIGH); //set L3 high
+    digitalWrite(motorPin4, LOW);  //set L4 low
+  }
+}
+
+
+    
+
+
